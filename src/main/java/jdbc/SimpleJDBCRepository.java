@@ -16,13 +16,8 @@ public class SimpleJDBCRepository {
     //private Connection connection = null;
     //private PreparedStatement ps = null;
     //private Statement st = null;
-    private CustomDataSource dataSource;
-    //public class User {
-    //    private Long id;
-    //    private String firstName;
-    //    private String lastName;
-    //    private int age;
-    //}
+   private CustomDataSource dataSource;
+
     private static final String createUserSQL = "INSERT INTO public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
     private static final String updateUserSQL = "UPDATE public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
     private static final String deleteUser = "DELETE FROM public.myusers WHERE id=?";
@@ -30,8 +25,8 @@ public class SimpleJDBCRepository {
     private static final String findUserByNameSQL = "SELECT * FROM public.myusers WHERE firstName || ' ' || lastName = ?";
     private static final String findAllUserSQL = "SELECT * FROM public.myusers";
 
-    public SimpleJDBCRepository(CustomDataSource dataSource) {
-        this.dataSource = dataSource;
+    public SimpleJDBCRepository(String driver, String url, String name, String password) {
+        dataSource = CustomDataSource.getInstance(driver, url, name, password);
     }
 
     public Long createUser(User user) {
