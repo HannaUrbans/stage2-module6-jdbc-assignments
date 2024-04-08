@@ -34,10 +34,16 @@ public class SimpleJDBCRepository {
         Properties properties = new Properties();
         try (FileInputStream fis = new FileInputStream("app.properties")) {
             properties.load(fis);
-            dataSource = CustomDataSource.getInstance(driver, url, name, password);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.dataSource = CustomDataSource.getInstance(
+                properties.getProperty("postgres.driver"),
+                properties.getProperty("postgres.url"),
+                properties.getProperty("postgres.name"),
+                properties.getProperty("postgres.password")
+        );
     }
 
     public Long createUser(User user) {
