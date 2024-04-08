@@ -28,7 +28,7 @@ public class SimpleJDBCRepository {
     private static final String deleteUser = "DELETE FROM public.myusers WHERE id=?";
     private static final String findUserByIdSQL = "SELECT * FROM public.myusers WHERE id=?";
     private static final String findUserByNameSQL = "SELECT * FROM public.myusers WHERE firstName || ' ' || lastName = ?";
-    private static final String findAllUser = "SELECT * FROM public.myusers";
+    private static final String findAllUserSQL = "SELECT * FROM public.myusers";
 
     public SimpleJDBCRepository(CustomDataSource dataSource) {
         this.dataSource = dataSource;
@@ -91,10 +91,10 @@ public class SimpleJDBCRepository {
     }
 
 
-    public List<User> findAllUser() {
+    public List<User> findAllUserSQL() {
         List<User> users = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(findAllUser)) {
+             PreparedStatement ps = connection.prepareStatement(findAllUserSQL)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 long id = rs.getLong("id");
