@@ -23,12 +23,12 @@ public class SimpleJDBCRepository {
     //    private String lastName;
     //    private int age;
     //}
-    private static final String createUserSQL = "INSERT INTO public.myusers (firstname, lastname, age) VALUES (?, ?, ?)";
-    private static final String updateUserSQL = "UPDATE public.myusers SET firstname=?, lastname=?, age=? WHERE id=?";
+    private static final String createUserSQL = "INSERT INTO public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
+    private static final String updateUserSQL = "UPDATE public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
     private static final String deleteUser = "DELETE FROM public.myusers WHERE id=?";
     private static final String findUserByIdSQL = "SELECT * FROM public.myusers WHERE id=?";
-    private static final String findUserByNameSQL = "SELECT * FROM public.myusers WHERE firstname=? AND lastname=?";
-    private static final String findAllUserSQL = "SELECT * FROM users";
+    private static final String findUserByNameSQL = "SELECT * FROM public.myusers WHERE firstName || ' ' || lastName = ?";
+    private static final String findAllUser = "SELECT * FROM public.myusers";
 
     public SimpleJDBCRepository(CustomDataSource dataSource) {
         this.dataSource = dataSource;
@@ -52,16 +52,16 @@ public class SimpleJDBCRepository {
         }
     }
 
-    public User findUserById(Long userId) {
+    public User findUserByName(String firstName, String lastName) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(findUserByIdSQL)) {
-            ps.setLong(1, userId);
+             PreparedStatement ps = connection.prepareStatement(findUserByNameSQL)) {
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 long id = rs.getLong("id");
-                String firstName = rs.getString("first_name");
-                String lastName = rs.getString("last_name");
                 int age = rs.getInt("age");
+                // Создание объекта User с использованием полученных данных из ResultSet
                 return new User(id, firstName, lastName, age);
             }
             return null;
@@ -71,11 +71,10 @@ public class SimpleJDBCRepository {
         }
     }
 
-    public User findUserByName(String firstName, String lastName) {
+    public User findUserByName(String userName) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(findUserByNameSQL)) {
-            ps.setString(1, firstName);
-            ps.setString(2, lastName);
+            ps.setString(1, userName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 long id = rs.getLong("id");
@@ -92,11 +91,10 @@ public class SimpleJDBCRepository {
     }
 
 
-    public List<User> findAllUsers() {
+    public List<User> findAllUser() {
         List<User> users = new ArrayList<>();
-        String findAllUsersSQL = "SELECT * FROM public.myusers";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(findAllUsersSQL)) {
+             PreparedStatement ps = connection.prepareStatement(findAllUser)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 long id = rs.getLong("id");
