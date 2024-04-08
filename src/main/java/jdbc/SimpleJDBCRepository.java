@@ -52,14 +52,15 @@ public class SimpleJDBCRepository {
         }
     }
 
-    public User findUserByName(String firstName, String lastName) {
+    public User findUserById(Long userId) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(findUserByNameSQL)) {
-            ps.setString(1, firstName);
-            ps.setString(2, lastName);
+             PreparedStatement ps = connection.prepareStatement(findUserByIdSQL)) {
+            ps.setLong(1, userId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 long id = rs.getLong("id");
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
                 int age = rs.getInt("age");
                 // Создание объекта User с использованием полученных данных из ResultSet
                 return new User(id, firstName, lastName, age);
@@ -91,7 +92,7 @@ public class SimpleJDBCRepository {
     }
 
 
-    public List<User> findAllUserSQL() {
+    public List<User> findAllUser() {
         List<User> users = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(findAllUserSQL)) {
