@@ -1,22 +1,27 @@
 package jdbc;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class SimpleJDBCRepository {
 
-    //private Connection connection = null;
-    //private PreparedStatement ps = null;
-    //private Statement st = null;
-   private CustomDataSource dataSource;
+    private Connection connection = null;
+    private PreparedStatement ps = null;
+    private Statement st = null;
+  private CustomDataSource dataSource;
 
     private static final String createUserSQL = "INSERT INTO public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
     private static final String updateUserSQL = "UPDATE public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
@@ -26,7 +31,13 @@ public class SimpleJDBCRepository {
     private static final String findAllUserSQL = "SELECT * FROM public.myusers";
 
     public SimpleJDBCRepository(String driver, String url, String name, String password) {
-        dataSource = CustomDataSource.getInstance(driver, url, name, password);
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream("app.properties")) {
+            properties.load(fis);
+            dataSource = CustomDataSource.getInstance(driver, url, name, password);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Long createUser(User user) {
