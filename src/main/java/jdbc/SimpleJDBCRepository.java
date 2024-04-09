@@ -1,6 +1,7 @@
 package jdbc;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Connection;
@@ -16,6 +17,7 @@ import java.util.Properties;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class SimpleJDBCRepository {
 
     private Connection connection = null;
@@ -23,28 +25,16 @@ public class SimpleJDBCRepository {
     private Statement st = null;
   private CustomDataSource dataSource;
 
+    public SimpleJDBCRepository(CustomDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     private static final String createUserSQL = "INSERT INTO public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
     private static final String updateUserSQL = "UPDATE public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
     private static final String deleteUser = "DELETE FROM public.myusers WHERE id=?";
     private static final String findUserByIdSQL = "SELECT * FROM public.myusers WHERE id=?";
     private static final String findUserByNameSQL = "SELECT * FROM public.myusers WHERE firstName || ' ' || lastName = ?";
     private static final String findAllUserSQL = "SELECT * FROM public.myusers";
-
-    public SimpleJDBCRepository(String driver, String url, String name, String password) {
-        Properties properties = new Properties();
-        try (FileInputStream fis = new FileInputStream("app.properties")) {
-            properties.load(fis);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        this.dataSource = CustomDataSource.getInstance(
-                properties.getProperty("postgres.driver"),
-                properties.getProperty("postgres.url"),
-                properties.getProperty("postgres.name"),
-                properties.getProperty("postgres.password")
-        );
-    }
 
     public Long createUser(User user) {
         try (Connection connection = dataSource.getConnection();
@@ -142,6 +132,24 @@ public class SimpleJDBCRepository {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+    public static SimpleJDBCRepository createFromPropertiesFile(String propertiesFilePath) {
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream(propertiesFilePath)) {
+            properties.load(fis);
+
+            CustomDataSource dataSource = CustomDataSource.getInstance(
+                    properties.getProperty("postgres.driver"),
+                    properties.getProperty("postgres.url"),
+                    properties.getProperty("postgres.password"),
+                    properties.getProperty("postgres.name")
+            );
+
+            return new SimpleJDBCRepository(dataSource);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
