@@ -1,8 +1,8 @@
 package jdbc;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -10,18 +10,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class SimpleJDBCRepository {
 
     private CustomDataSource dataSource;
     private CustomConnector connector;
 
     public SimpleJDBCRepository(String driver, String url, String name, String password) {
-        this.dataSource = CustomDataSource.getInstance(driver, url, name, password);
+        this.dataSource = CustomDataSource.getInstance();
     }
 
     public SimpleJDBCRepository(CustomConnector connector) {
@@ -37,14 +36,12 @@ public class SimpleJDBCRepository {
             throw new IllegalStateException("Both dataSource and connector are null");
         }
     }
-
-
-    private static final String createUserSQL = "INSERT INTO public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
-    private static final String updateUserSQL = "UPDATE public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
-    private static final String deleteUser = "DELETE FROM public.myusers WHERE id=?";
-    private static final String findUserByIdSQL = "SELECT * FROM public.myusers WHERE id=?";
-    private static final String findUserByNameSQL = "SELECT * FROM public.myusers WHERE firstName || ' ' || lastName = ?";
-    private static final String findAllUserSQL = "SELECT * FROM public.myusers";
+    private static final String createUserSQL = "INSERT INTO myfirstdb.public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
+    private static final String updateUserSQL = "UPDATE myfirstdb.public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
+    private static final String deleteUser = "DELETE FROM myfirstdb.public.myusers WHERE id=?";
+    private static final String findUserByIdSQL = "SELECT * FROM myfirstdb.public.myusers WHERE id=?";
+    private static final String findUserByNameSQL = "SELECT * FROM myfirstdb.public.myusers WHERE firstName || ' ' || lastName = ?";
+    private static final String findAllUserSQL = "SELECT * FROM myfirstdb.public.myusers";
 
     public Long createUser(User user) {
         try (Connection connection = dataSource.getConnection();
@@ -71,8 +68,8 @@ public class SimpleJDBCRepository {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 long id = rs.getLong("id");
-                String firstName = rs.getString("first_name");
-                String lastName = rs.getString("last_name");
+                String firstName = rs.getString("firstName");
+                String lastName = rs.getString("lastName");
                 int age = rs.getInt("age");
                 // Создание объекта User с использованием полученных данных из ResultSet
                 return new User(id, firstName, lastName, age);
@@ -91,8 +88,8 @@ public class SimpleJDBCRepository {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 long id = rs.getLong("id");
-                String userFirstName = rs.getString("first_name");
-                String userLastName = rs.getString("last_name");
+                String userFirstName = rs.getString("firstName");
+                String userLastName = rs.getString("lastName");
                 int age = rs.getInt("age");
                 return new User(id, userFirstName, userLastName, age);
             }
@@ -111,8 +108,8 @@ public class SimpleJDBCRepository {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 long id = rs.getLong("id");
-                String firstName = rs.getString("first_name");
-                String lastName = rs.getString("last_name");
+                String firstName = rs.getString("firstName");
+                String lastName = rs.getString("lastName");
                 int age = rs.getInt("age");
                 users.add(new User(id, firstName, lastName, age));
             }

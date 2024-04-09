@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
+import static java.lang.System.getProperty;
+
 @Getter
 @Setter
 public class CustomDataSource implements DataSource {
@@ -33,11 +35,16 @@ public class CustomDataSource implements DataSource {
         }
     }
 
-    public static CustomDataSource getInstance(String driver, String url, String name, String password) {
+    public static CustomDataSource getInstance() {
         if (instance == null) {
             synchronized (CustomDataSource.class) {
                 if (instance == null) {
-                    instance = new CustomDataSource(driver, url, name, password);
+                    instance = new CustomDataSource(
+                            getProperty("postgres.driver"),
+                            getProperty("postgres.url"),
+                            getProperty("postgres.name"),
+                            getProperty("postgres.password")
+                    );
                 }
             }
         }
