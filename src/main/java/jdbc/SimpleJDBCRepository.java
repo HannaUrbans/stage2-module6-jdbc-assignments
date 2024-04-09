@@ -18,10 +18,26 @@ import java.util.List;
 public class SimpleJDBCRepository {
 
     private CustomDataSource dataSource;
+    private CustomConnector connector;
 
     public SimpleJDBCRepository(CustomDataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    public SimpleJDBCRepository(CustomConnector connector) {
+        this.connector = connector;
+    }
+    private Connection getConnection() throws SQLException {
+        if (dataSource != null) {
+            return dataSource.getConnection();
+        } else if (connector != null) {
+            // Use CustomConnector to get connection
+            return connector.getConnection("jdbc:postgresql://localhost:5432/myfirstdb", "postgres", "123456");
+        } else {
+            throw new IllegalStateException("Both dataSource and connector are null");
+        }
+    }
+
 
     private static final String createUserSQL = "INSERT INTO public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
     private static final String updateUserSQL = "UPDATE public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
