@@ -20,8 +20,8 @@ public class SimpleJDBCRepository {
     private CustomDataSource dataSource;
     private CustomConnector connector;
 
-    public SimpleJDBCRepository(CustomDataSource dataSource) {
-        this.dataSource = dataSource;
+    public SimpleJDBCRepository(String driver, String url, String name, String password) {
+        this.dataSource = CustomDataSource.getInstance(driver, url, name, password);
     }
 
     public SimpleJDBCRepository(CustomConnector connector) {
