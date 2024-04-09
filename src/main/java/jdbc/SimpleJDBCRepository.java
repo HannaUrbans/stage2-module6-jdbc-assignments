@@ -1,29 +1,23 @@
 package jdbc;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class SimpleJDBCRepository {
 
-    private Connection connection = null;
-    private PreparedStatement ps = null;
-    private Statement st = null;
-  private CustomDataSource dataSource;
+    private CustomDataSource dataSource;
 
     public SimpleJDBCRepository(CustomDataSource dataSource) {
         this.dataSource = dataSource;
@@ -132,24 +126,6 @@ public class SimpleJDBCRepository {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-    public static SimpleJDBCRepository createFromPropertiesFile(String propertiesFilePath) {
-        Properties properties = new Properties();
-        try (FileInputStream fis = new FileInputStream(propertiesFilePath)) {
-            properties.load(fis);
-
-            CustomDataSource dataSource = CustomDataSource.getInstance(
-                    properties.getProperty("postgres.driver"),
-                    properties.getProperty("postgres.url"),
-                    properties.getProperty("postgres.password"),
-                    properties.getProperty("postgres.name")
-            );
-
-            return new SimpleJDBCRepository(dataSource);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 }
