@@ -5,14 +5,16 @@ import javax.sql.DataSource;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Properties;
 import java.util.logging.Logger;
 
-import static java.lang.System.getProperty;
 
 @Getter
 @Setter
@@ -36,14 +38,32 @@ public class CustomDataSource implements DataSource {
     }
 
     public static CustomDataSource getInstance() {
+        Properties properties = new Properties();
+        try {
+            // Загрузка файла конфигурации из ресурсов
+            InputStream input = CustomDataSource.class.getClassLoader().getResourceAsStream("app.properties");
+            properties.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load configuration file", e);
+        }
+        String driver = properties.getProperty("postgres.driver");
+        String url = properties.getProperty("postgres.url");
+        String name = properties.getProperty("postgres.name");
+        String password = properties.getProperty("postgres.password");
+
+        System.out.println("Loaded properties:");
+        System.out.println("driver: " + driver);
+        System.out.println("url: " + url);
+        System.out.println("name: " + name);
+        System.out.println("password: " + password);
         if (instance == null) {
             synchronized (CustomDataSource.class) {
                 if (instance == null) {
                     instance = new CustomDataSource(
-                            getProperty("postgres.driver"),
-                            getProperty("postgres.url"),
-                            getProperty("postgres.name"),
-                            getProperty("postgres.password")
+                            driver,
+                            url,
+                            name,
+                            password
                     );
                 }
             }
@@ -62,21 +82,21 @@ public class CustomDataSource implements DataSource {
     }
 
     @Override
-    public PrintWriter getLogWriter() throws SQLException {
+    public PrintWriter getLogWriter(){
         // Заглушка
         return null;
     }
     @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
+    public void setLogWriter(PrintWriter out) {
         // Заглушка
     }
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
+    public void setLoginTimeout(int seconds) {
         // Заглушка
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
+    public int getLoginTimeout() {
         // Заглушка
         return 0;
     }
