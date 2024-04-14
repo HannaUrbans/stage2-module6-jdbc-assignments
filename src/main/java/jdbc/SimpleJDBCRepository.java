@@ -16,36 +16,20 @@ import java.util.List;
 @AllArgsConstructor
 public class SimpleJDBCRepository {
 
+    private Connection connection = null;
+    private PreparedStatement ps = null;
+    private Statement st = null;
     private CustomDataSource dataSource;
-    private CustomConnector connector;
 
-    public SimpleJDBCRepository(String driver, String url, String name, String password) {
-        this.dataSource = CustomDataSource.getInstance();
-    }
-
-    public SimpleJDBCRepository(CustomConnector connector) {
-        this.connector = connector;
-    }
-    private Connection getConnection() throws SQLException {
-        if (dataSource != null) {
-            return dataSource.getConnection();
-        } else if (connector != null) {
-            // Use CustomConnector to get connection
-            CustomDataSource customDataSource = CustomDataSource.getInstance();
-            String url = customDataSource.getUrl();
-            String name = customDataSource.getName();
-            String password = customDataSource.getPassword();
-            return connector.getConnection(url, name, password); // Using the overloaded method with parameters
-        } else {
-            throw new IllegalStateException("Both dataSource and connector are null");
-        }
-    }
     private static final String createUserSQL = "INSERT INTO myfirstdb.public.myusers (firstName, lastName, age) VALUES (?, ?, ?)";
     private static final String updateUserSQL = "UPDATE myfirstdb.public.myusers SET firstName=?, lastName=?, age=? WHERE id=?";
     private static final String deleteUser = "DELETE FROM myfirstdb.public.myusers WHERE id=?";
     private static final String findUserByIdSQL = "SELECT * FROM myfirstdb.public.myusers WHERE id=?";
     private static final String findUserByNameSQL = "SELECT * FROM myfirstdb.public.myusers WHERE firstName || ' ' || lastName = ?";
     private static final String findAllUserSQL = "SELECT * FROM myfirstdb.public.myusers";
+    public SimpleJDBCRepository(CustomDataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public Long createUser(User user) {
         try (Connection connection = dataSource.getConnection();
