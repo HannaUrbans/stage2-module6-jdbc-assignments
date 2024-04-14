@@ -16,9 +16,13 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 
+
+
+
 @Getter
 @Setter
 public class CustomDataSource implements DataSource {
+    private static final Logger logger = Logger.getLogger(CustomDataSource.class.getName());
     private static volatile CustomDataSource instance;
     private final String driver;
     private final String url;
@@ -38,6 +42,8 @@ public class CustomDataSource implements DataSource {
     }
 
     public static CustomDataSource getInstance() {
+
+
         Properties properties = new Properties();
         try {
             // Загрузка файла конфигурации из ресурсов
@@ -51,11 +57,7 @@ public class CustomDataSource implements DataSource {
         String name = properties.getProperty("postgres.name");
         String password = properties.getProperty("postgres.password");
 
-        System.out.println("Loaded properties:");
-        System.out.println("driver: " + driver);
-        System.out.println("url: " + url);
-        System.out.println("name: " + name);
-        System.out.println("password: " + password);
+
         if (instance == null) {
             synchronized (CustomDataSource.class) {
                 if (instance == null) {
@@ -73,23 +75,29 @@ public class CustomDataSource implements DataSource {
 
     @Override
     public Connection getConnection() throws SQLException {
+
         return DriverManager.getConnection(url, name, password);
+
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
+
         return DriverManager.getConnection(url, username, password);
+
     }
 
     @Override
-    public PrintWriter getLogWriter(){
+    public PrintWriter getLogWriter() {
         // Заглушка
         return null;
     }
+
     @Override
     public void setLogWriter(PrintWriter out) {
         // Заглушка
     }
+
     @Override
     public void setLoginTimeout(int seconds) {
         // Заглушка
@@ -100,11 +108,13 @@ public class CustomDataSource implements DataSource {
         // Заглушка
         return 0;
     }
+
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         // Заглушка
         throw new SQLFeatureNotSupportedException("Method getParentLogger() is not supported");
     }
+
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new SQLException("Method unwrap(Class<T>) is not supported");
@@ -114,4 +124,7 @@ public class CustomDataSource implements DataSource {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new SQLException("Method isWrapperFor(Class<?>) is not supported");
     }
+
+
 }
+

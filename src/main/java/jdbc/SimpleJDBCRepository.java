@@ -31,7 +31,11 @@ public class SimpleJDBCRepository {
             return dataSource.getConnection();
         } else if (connector != null) {
             // Use CustomConnector to get connection
-            return connector.getConnection("jdbc:postgresql://localhost:5432/myfirstdb", "postgres", "123456");
+            CustomDataSource customDataSource = CustomDataSource.getInstance();
+            String url = customDataSource.getUrl();
+            String name = customDataSource.getName();
+            String password = customDataSource.getPassword();
+            return connector.getConnection(url, name, password); // Using the overloaded method with parameters
         } else {
             throw new IllegalStateException("Both dataSource and connector are null");
         }
